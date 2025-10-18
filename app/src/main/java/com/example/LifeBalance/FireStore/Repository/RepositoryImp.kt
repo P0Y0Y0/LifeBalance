@@ -23,31 +23,38 @@ class RepositoryImp(
     private val database: CollectionReference
 ) : Repository {
     //--------------------------------------- fitness-----------------------------------
-    override fun changeHeight(height: String,context: Context){
-        val ref=database.document(
-            FirebaseAuth.getInstance().currentUser!!.uid)
-        ref.update("height",height).addOnSuccessListener {
-            Toast.makeText(context, "Height Updated Successfully", Toast.LENGTH_SHORT).show()
-            return@addOnSuccessListener
-        }.addOnFailureListener {
-            Toast.makeText(context, "Height does not Updated", Toast.LENGTH_SHORT).show()
-            return@addOnFailureListener
+    override fun changeHeight(height: String, context: Context) {
+        val ref = database.document(FirebaseAuth.getInstance().currentUser!!.uid)
+        val heightCm = height.toDoubleOrNull() ?: 0.0
+
+        if (heightCm in 100.0..250.0) {
+            ref.update("height", heightCm)
+                .addOnSuccessListener {
+                    Toast.makeText(context, "Height updated to $heightCm cm", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener {
+                    Toast.makeText(context, "Failed to update height", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(context, "Height must be between 100–250 cm", Toast.LENGTH_SHORT).show()
         }
     }
 
+
     override fun getheight(result: (UIstate<String>) -> Unit) {
-        val ref=database.document(
-            FirebaseAuth.getInstance().currentUser!!.uid)
-        ref.addSnapshotListener{ values, error->
-            if(values!!.exists()&& values.contains("height"))
-            {
-                val height=values.get("height").toString()
-                result.invoke(
-                    UIstate.Success(height)
-                )
+        val ref = database.document(FirebaseAuth.getInstance().currentUser!!.uid)
+        ref.addSnapshotListener { values, error ->
+            if (error != null) return@addSnapshotListener
+            if (values != null && values.exists() && values.contains("height")) {
+                val height = values.getDouble("height") ?: 0.0
+                result.invoke(UIstate.Success(height.toString()))
+            } else {
+                // Set default placeholder instead of 0
+                result.invoke(UIstate.Success("Belum diatur"))
             }
         }
     }
+
 
     override fun getWeight(result: (UIstate<ArrayList<Entry>>) -> Unit) {
         database.document(

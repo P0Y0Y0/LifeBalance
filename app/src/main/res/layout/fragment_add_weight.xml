@@ -111,7 +111,7 @@
                android:layout_height="wrap_content"
                android:layout_gravity="center"
                android:gravity="center"
-               android:text="ft                      inches"
+               android:text="Set Height (cm)"
                android:textSize="20sp"
                android:textStyle="bold"
                tools:ignore="HardcodedText" />
@@ -123,15 +123,7 @@
                android:weightSum="2">
 
                <NumberPicker
-                   android:id="@+id/ft"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:layout_weight="1"
-                   android:backgroundTint="@color/white"
-                   android:theme="@style/Theme.picker" />
-
-               <NumberPicker
-                   android:id="@+id/inch"
+                   android:id="@+id/heightPicker"
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content"
                    android:layout_weight="1"

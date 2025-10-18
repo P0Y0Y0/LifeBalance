@@ -116,46 +116,39 @@ class profile_fragment : Fragment() {
 
     fun updateUI() {
         dialog.setContentView(R.layout.pop_height)
-        val ft: NumberPicker = dialog.findViewById(R.id.ft)
-        val inch: NumberPicker = dialog.findViewById(R.id.inch)
+
+        val heightPicker: NumberPicker = dialog.findViewById(R.id.heightPicker)
         val add: AppCompatButton = dialog.findViewById(R.id.add)
-        ft.minValue = 3
-        ft.maxValue = 8
-        ft.value = floor(height).toInt()
-        ft.wrapSelectorWheel = true
-        inch.minValue = 1
-        inch.maxValue = 12
-        inch.value = round((height - floor(height)) * 12).toInt()
-        inch.wrapSelectorWheel = true
+
+        heightPicker.minValue = 100
+        heightPicker.maxValue = 250
+        heightPicker.value = height.toInt().coerceIn(100, 250)
+        heightPicker.wrapSelectorWheel = true
+        heightPicker.setFormatter { "$it" }
+
         binding.apply {
             steps.setOnClickListener {
                 startActivity(Intent(requireActivity(), StepsTrack::class.java))
             }
-            edit.setOnClickListener {
-//                startActivity(Intent(activity, Profile::class.java))
-            }
             waterT.setOnClickListener {
-                startActivity(Intent(activity, Water::class.java))
+                startActivity(Intent(requireActivity(), Water::class.java))
             }
             logout.setOnClickListener {
-                FirebaseAuth.getInstance().signOut();
+                FirebaseAuth.getInstance().signOut()
                 startActivity(Intent(activity, MainAuthentication::class.java))
                 requireActivity().finish()
             }
-            foodT.setOnClickListener {
-//            startActivity(Intent(activity, Food_track::class.java))
-            }
-            height.setOnClickListener {
-                dialog.show()
-            }
+
+            height.setOnClickListener { dialog.show() }
+
             add.setOnClickListener {
-                var height = ft.value.toDouble() + (inch.value.toDouble() / 12)
-                height = df.format(height).toDouble()
-                viewModel.updateHeight(height.toString(), requireContext())
+                val selectedHeight = heightPicker.value.toDouble()
+                viewModel.updateHeight(selectedHeight.toString(), requireContext())
                 dialog.dismiss()
             }
         }
     }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("SetTextI18n")
@@ -191,33 +184,39 @@ class profile_fragment : Fragment() {
         reference.addSnapshotListener { snapshot, e ->
             if (e != null) return@addSnapshotListener
             if (snapshot != null && snapshot.exists()) {
-                val heightf = snapshot.data?.get("height")?.toString()?.toDoubleOrNull() ?: 0.0
-                height = heightf
-                var heightMeters = heightf * 0.305
+                val heightf = snapshot.data?.get("height")?.toString()?.toDoubleOrNull()
 
-                val weight =
-                    Constant.loadData(requireActivity(), "weight", "curr_w", "0").toString()
-                        .toDoubleOrNull() ?: 0.0
-                val bmi =
-                    if (heightMeters <= 0 || weight <= 0) 0.0 else weight / (heightMeters * heightMeters)
+                if (heightf == null || heightf == 0.0) {
+                    binding.edhight.text = "Not set"
+                    height = 170.0
+                } else {
+                    height = heightf
+                    binding.edhight.text = "${heightf.toInt()}"
+                }
+                val heightMeters = height / 100
+
+
+
+                val weight = Constant.loadData(requireActivity(), "weight", "curr_w", "0")
+                    .toString().toDoubleOrNull() ?: 0.0
+
+                val bmi = if (heightMeters <= 0 || weight <= 0) 0.0 else weight / (heightMeters * heightMeters)
 
                 binding.bmi.text = "%.1f".format(bmi)
+
                 when {
                     bmi < 18.5 -> {
                         binding.measure.text = "You are underweight"
                         binding.measure.setBackgroundColor(Color.RED)
                     }
-
                     bmi in 25.0..29.9 -> {
                         binding.measure.text = "You are overweight"
                         binding.measure.setBackgroundColor(Color.RED)
                     }
-
                     bmi >= 30 -> {
                         binding.measure.text = "You are obese range"
                         binding.measure.setBackgroundColor(Color.YELLOW)
                     }
-
                     else -> {
                         binding.measure.text = "You are normal and healthy"
                         binding.measure.setBackgroundColor(Color.GREEN)

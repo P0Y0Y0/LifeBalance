@@ -80,14 +80,17 @@ class Profile : AppCompatActivity() {
                             binding.measure.text = "You are underweight"
                             binding.measure.setBackgroundColor(Color.RED)
                         }
+
                         bm in 25.0..29.9 -> {
                             binding.measure.text = "You are Overweight"
                             binding.measure.setBackgroundColor(Color.RED)
                         }
+
                         bm >= 30.0 -> {
                             binding.measure.text = "You are Obese Range"
                             binding.measure.setBackgroundColor(Color.YELLOW)
                         }
+
                         else -> {
                             binding.measure.text = "You are Normal and Healthy"
                             binding.measure.setBackgroundColor(Color.GREEN)

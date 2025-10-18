@@ -19,72 +19,96 @@ import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
 
 class AddWeight : Fragment() {
+
     private lateinit var binding: FragmentAddWeightBinding
-    private var userDitails: DocumentReference = Firebase.firestore.collection("user").document(
-        FirebaseAuth.getInstance().currentUser!!.uid.toString()
-    )
+    private var userDetails: DocumentReference =
+        Firebase.firestore.collection("user")
+            .document(FirebaseAuth.getInstance().currentUser!!.uid)
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentAddWeightBinding.inflate(inflater, container, false)
+
         binding.apply {
+            // Set range untuk weight
             weight.minValue = 1
             weight.maxValue = 200
-            ft.minValue = 3
-            ft.maxValue = 8
-            ft.wrapSelectorWheel = true
-            inch.minValue = 1
-            inch.maxValue = 12
-            inch.wrapSelectorWheel = true
+
+            // Set range untuk height (cm)
+            heightPicker.minValue = 100
+            heightPicker.maxValue = 250
+            heightPicker.wrapSelectorWheel = true
+
             add.setOnClickListener {
                 if (isInternetOn(requireContext())) {
-                    addweight()
-                    weightv.visibility = View.GONE
-                    userDitails.addSnapshotListener { value, error ->
-                        if (value!!.exists() && !value.contains("height")) {
+                    saveWeight()
+
+                    // Setelah input berat, cek apakah user sudah punya tinggi
+                    userDetails.get().addOnSuccessListener { doc ->
+                        if (!doc.exists() || !doc.contains("height")) {
+                            // Belum ada height → tampilkan form tinggi
+                            weightv.visibility = View.GONE
                             height.visibility = View.VISIBLE
-                            val height = ft.value + (inch.value / 12)
+
                             addh.setOnClickListener {
+                                val heightValue = heightPicker.value.toDouble()
+
                                 if (isInternetOn(requireContext())) {
-                                    userDitails.update("height", height.toString())
-                                    startActivity(
-                                        Intent(
-                                            requireActivity(),
-                                            Home_screen::class.java
-                                        )
-                                    )
-                                    requireActivity().finish()
+                                    userDetails.update("height", heightValue.toString())
+                                        .addOnSuccessListener {
+                                            startActivity(
+                                                Intent(
+                                                    requireActivity(),
+                                                    Home_screen::class.java
+                                                )
+                                            )
+                                            requireActivity().finish()
+                                        }
+                                        .addOnFailureListener {
+                                            Toast.makeText(
+                                                requireContext(),
+                                                "Failed to save height",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
                                 } else {
                                     Toast.makeText(
                                         requireContext(),
-                                        "Please Turn on your internet connection",
+                                        "Please turn on your internet connection",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
                             }
+                        } else {
+                            // Sudah ada height → langsung ke home
+                            startActivity(Intent(requireActivity(), Home_screen::class.java))
+                            requireActivity().finish()
                         }
                     }
                 } else {
                     Toast.makeText(
                         requireContext(),
-                        "Please Turn on your internet connection",
+                        "Please turn on your internet connection",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             }
         }
+
         return binding.root
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun addweight() {
-        val weight = binding.weight.value.toString()
-        val curr_date = LocalDate.now().toString()
-        Constant.savedata(requireContext(), "weight", "curr_w", weight.toString())
-        val map = hashMapOf("weight" to weight, "date" to curr_date)
-        userDitails.collection("Weight track").document(curr_date).set(map)
+    private fun saveWeight() {
+        val weightValue = binding.weight.value.toString()
+        val currDate = LocalDate.now().toString()
+
+        Constant.savedata(requireContext(), "weight", "curr_w", weightValue)
+        val map = hashMapOf("weight" to weightValue, "date" to currDate)
+
+        userDetails.collection("Weight track").document(currDate).set(map)
     }
 }

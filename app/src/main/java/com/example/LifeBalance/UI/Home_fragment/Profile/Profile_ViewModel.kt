@@ -17,8 +17,7 @@ class Profile_ViewModel @Inject constructor(private val repository: Repository):
     private var _data = MutableLiveData<UIstate<String>>()
     val data: LiveData<UIstate<String>>
         get() = _data
-    fun getHeight()
-    {
+    fun getHeight() {
         repository.getheight{
             _data.value = UIstate.Loading
             _data.value=it

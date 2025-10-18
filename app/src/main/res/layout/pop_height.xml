@@ -17,35 +17,19 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Set Height"
+        android:text="Set Height (cm)"
         android:layout_gravity="center"
         android:gravity="center"
         android:textColor="@color/black"
         android:textStyle="bold"
         android:textSize="20sp"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ft                      inches"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        tools:ignore="HardcodedText" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:weightSum="2">
         <NumberPicker
-            android:id="@+id/ft"
-            android:layout_weight="1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/Theme.picker"
-            android:backgroundTint="@color/white"/>
-        <NumberPicker
-            android:id="@+id/inch"
+            android:id="@+id/heightPicker"
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
