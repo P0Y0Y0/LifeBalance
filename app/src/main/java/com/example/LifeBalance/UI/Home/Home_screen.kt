@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -57,6 +58,8 @@ class Home_screen : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        Log.d("HBug", "Home_screen onCreate() masuk")
 
         onBackPressedDispatcher.addCallback(this) {
             finish()
@@ -131,6 +134,8 @@ class Home_screen : AppCompatActivity() {
             }
             //startService(intent)
         }
+
+        Log.d("HBug", "Home_screen onStart() masuk")
     }
 
     private fun makeCurrentFrag(Fragment: Fragment) {
@@ -180,6 +185,7 @@ class Home_screen : AppCompatActivity() {
             Constant.savedata(this, "weight", "curr_w", curr_weight.toString())
         }
     }
+
 }
 
 object Reset_AT_12_AM {

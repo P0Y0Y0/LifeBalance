@@ -30,7 +30,7 @@ class Profile : AppCompatActivity() {
         val fAuth = FirebaseAuth.getInstance()
         val currUser = fAuth.currentUser
         if (currUser == null) {
-            finish() // keluar diam-diam kalau belum login
+            finish()
             return
         }
 
@@ -56,12 +56,10 @@ class Profile : AppCompatActivity() {
                 "Bmi" to bmi.toString()
             )
 
-            // pakai set() biar auto create dokumen kalau belum ada
             userRef.collection("fitness").document("fit").set(fitdata)
                 .addOnSuccessListener { finish() }
         }
 
-        // ambil data fitness
         userRef.collection("fitness").document("fit").get()
             .addOnSuccessListener {
                 if (it.exists()) {

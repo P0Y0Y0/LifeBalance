@@ -275,7 +275,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Goal Setting"
+                        android:text="History Tracker"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:textAlignment="center"/>
@@ -299,13 +299,11 @@
                             android:layout_gravity="center"
                             android:layout_marginStart="10dp"/>
                         <TextView
-
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Water Tracker"
                             android:textSize="20sp"
-                            android:padding="10dp"
-                            />
+                            android:padding="10dp" />
                     </LinearLayout>
                     <View
                         android:layout_width="match_parent"
