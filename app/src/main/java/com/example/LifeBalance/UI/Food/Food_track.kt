@@ -128,14 +128,14 @@ class Food_track : AppCompatActivity() {
                 sugar.text=it[1].toString()
                 pro.text=it[2].toString()
                 fat.text=it[3].toString()
-                dialog.setContentView(R.layout.pop_weight)
+                dialog.setContentView(R.layout.pop_calories)
                 val calories_target: NumberPicker = dialog.findViewById(R.id.loss)
                 val add: AppCompatButton = dialog.findViewById(R.id.add)
                 calories_target.minValue = 0
                 calories_target.maxValue = 20
                 calories_target.wrapSelectorWheel = true
                 calories_target.displayedValues = Constant.calorieTarget
-                val save = Constant.loadData(this@Food_track, "calorie", "target", "500").toString()
+                val save = Constant.loadData(this@Food_track, "calorie", "target", "2500").toString()
                 targetCal.text=save.toString()
                 target.setOnClickListener {
                     dialog.show()

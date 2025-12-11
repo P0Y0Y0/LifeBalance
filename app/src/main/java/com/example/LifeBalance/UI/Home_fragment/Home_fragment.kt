@@ -42,36 +42,29 @@ import kotlin.math.round
 @Suppress("SENSELESS_COMPARISON")
 @RequiresApi(Build.VERSION_CODES.O)
 class Home_fragment : Fragment() {
-
-    // Handler buat update UI berkala
     private val handler = Handler()
 
-    // Dialog pop-up (buat target kalori)
     private lateinit var dialog: Dialog
 
-    // View binding
     private lateinit var binding: FragmentHomeFragmentBinding
 
-    // Referensi ke user di Firestore
     var userDitails: DocumentReference = Firebase.firestore.collection("user")
         .document(FirebaseAuth.getInstance().currentUser!!.uid.toString())
 
-    // Variabel air minum
     private var no_glass: Int? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     private var curr_date: String = LocalDate.now().toString()
 
-    // Runnable buat update UI terus menerus tiap 1 detik
     private val updatetimeRunnable = object : Runnable {
         @RequiresApi(Build.VERSION_CODES.O)
         @SuppressLint("SimpleDateFormat")
         override fun run() {
-            // Update tampilan langkah dan kalori
+
             stepCounter()
-            // Update sapaan waktu
+
             greeting_class()
-            // Cek koneksi internet
+
             if (!Constant.isInternetOn(requireContext())) {
                 binding.net.visibility = View.VISIBLE
             } else {
@@ -88,12 +81,10 @@ class Home_fragment : Fragment() {
     ): View {
         binding = FragmentHomeFragmentBinding.inflate(inflater, container, false)
 
-        // Jalankan loop UI updater
         handler.post(updatetimeRunnable)
 
         dialog = Dialog(requireActivity())
 
-        // Ambil nama user dari Firestore
         userDitails.addSnapshotListener { value, error ->
             if (error != null) return@addSnapshotListener
             if (value != null && value.exists()) {
@@ -107,7 +98,6 @@ class Home_fragment : Fragment() {
         addfood()
         addTarget()
 
-        // Listener tombol
         binding.apply {
             weightButton.setOnClickListener {
                 startActivity(Intent(requireActivity(), weight_track::class.java))

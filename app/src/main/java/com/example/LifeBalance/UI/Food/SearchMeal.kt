@@ -37,7 +37,7 @@ class SearchMeal : AppCompatActivity() {
     private lateinit var loading: Dialog
     private lateinit var binding: SearchmealBinding
     private lateinit var ViewModel: Food_ViewModel
-    private var userDitails: DocumentReference = Firebase.firestore.collection("user").document(
+    private var userDetails: DocumentReference = Firebase.firestore.collection("user").document(
         FirebaseAuth.getInstance().currentUser!!.uid.toString()
     )
 
