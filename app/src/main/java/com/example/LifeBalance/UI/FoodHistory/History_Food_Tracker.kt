@@ -3,8 +3,11 @@ package com.example.LifeBalance.UI.FoodHistory
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.LifeBalance.ML.MlApiClient
 import com.example.LifeBalance.data_Model.Nutrient
 import com.example.LifeBalance.databinding.ActivityHistoryFoodTrackerBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -12,6 +15,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.util.*
 import com.example.LifeBalance.R
+import com.example.LifeBalance.data_Model.MLRequest
+import kotlinx.coroutines.launch
 
 class History_Food_Tracker : AppCompatActivity() {
 
@@ -205,6 +210,28 @@ class History_Food_Tracker : AppCompatActivity() {
                     }
                 }
         }
+    }
+
+    private fun requestHealthScore(calories: Int) {
+        lifecycleScope.launch {
+            try {
+                val res = MlApiClient.api.predictHealth(
+                    MLRequest(calories)
+                )
+                showHealthRiskUI(res.health_score, res.risk_level)
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@History_Food_Tracker,
+                    "ML service unavailable",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun showHealthRiskUI(score: Int, risk: String) {
+        binding.tvHealthScore.text = "Health Score: $score"
+        binding.tvRiskBadge.text = risk.uppercase()
     }
 
 }

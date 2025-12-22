@@ -109,6 +109,68 @@
             android:padding="16dp"
             android:visibility="gone"/>
 
+        <!-- ===== HEALTH RISK CARD ===== -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardHealthRisk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Daily Health Assessment"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/tvHealthScore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Health Score: -"
+                    android:layout_marginTop="8dp"
+                    android:textSize="16sp"/>
+
+                <TextView
+                    android:id="@+id/tvRiskBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RISK"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@android:color/white"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="6dp"
+                    android:background="@drawable/bg_risk_medium"/>
+
+                <TextView
+                    android:id="@+id/tvRiskDesc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Health risk description will appear here."
+                    android:textColor="@color/dark_grey"/>
+
+                <Button
+                    android:id="@+id/btnCheckHealth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Check Health Risk"
+                    android:backgroundTint="@color/dark_orange"
+                    android:textColor="@android:color/white"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
         <!-- ===== FOOD LIST ===== -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvFoodHistory"
