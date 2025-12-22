@@ -137,6 +137,9 @@
                 android:value="" />
         </activity>
         <activity
+            android:name=".UI.FoodHistory.History_Food_Tracker"
+            android:exported="false" />
+        <activity
             android:name=".UI.water.Water"
             android:exported="false"
             android:screenOrientation="portrait"

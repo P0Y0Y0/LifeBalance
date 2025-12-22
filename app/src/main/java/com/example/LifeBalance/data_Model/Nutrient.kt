@@ -9,4 +9,6 @@ data class Nutrient(
     val carbs:String?=null,
     val sugar:String?=null,
     val unit:String?=null,
-    val quantity:String?=null)
+    val quantity:String?=null,
+    var mealType:String?=null
+)

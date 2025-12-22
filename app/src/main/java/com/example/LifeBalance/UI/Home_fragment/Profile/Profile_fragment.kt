@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.LifeBalance.R
 import com.example.LifeBalance.UI.Auth.MainAuthentication
+import com.example.LifeBalance.UI.FoodHistory.History_Food_Tracker
 import com.example.LifeBalance.UI.Home.Home_screen
 import com.example.LifeBalance.UI.step.StepsTrack
 import com.example.LifeBalance.UI.water.Water
@@ -132,6 +133,9 @@ class profile_fragment : Fragment() {
             }
             waterT.setOnClickListener {
                 startActivity(Intent(requireActivity(), Water::class.java))
+            }
+            foodT.setOnClickListener {
+                startActivity(Intent(requireActivity(), History_Food_Tracker::class.java))
             }
             logout.setOnClickListener {
                 FirebaseAuth.getInstance().signOut()
