@@ -154,7 +154,7 @@ override fun getcalories(mealTimes: List<String>): LiveData<ArrayList<Float>> {
                 snapshot.forEach { document ->
                     nutrients[0] += document.get("carbs").toString().toFloat()
                     nutrients[1] += document.get("sugar").toString().toFloat()
-                    nutrients[2] += document.get("protien").toString().toFloat()
+                    nutrients[2] += document.get("protein").toString().toFloat()
                     nutrients[3] += document.get("fat").toString().toFloat()
                     nutrients[4] += document.get("calories").toString().toFloat()
                 }

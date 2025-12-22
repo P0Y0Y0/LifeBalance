@@ -5,13 +5,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.LifeBalance.Adapter.FoodHistoryAdapter
 import com.example.LifeBalance.data_Model.Nutrient
 import com.example.LifeBalance.databinding.ActivityHistoryFoodTrackerBinding
-import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -22,10 +17,9 @@ class History_Food_Tracker : AppCompatActivity() {
 
     private lateinit var binding: ActivityHistoryFoodTrackerBinding
 
-    private var selectedYear = 0
-    private var selectedMonth = 0
-    private var selectedDay = 0
-
+    private var year = 0
+    private var month = 0
+    private var day = 0
 
     private val mealTypes = listOf(
         "breakfast",
@@ -46,26 +40,24 @@ class History_Food_Tracker : AppCompatActivity() {
         updateDateText()
         setupDatePicker()
 
-        // load hari ini langsung
         loadMealsForDate(getSelectedDateString())
     }
 
     private fun initToday() {
         val cal = Calendar.getInstance()
-        selectedYear = cal.get(Calendar.YEAR)
-        selectedMonth = cal.get(Calendar.MONTH)
-        selectedDay = cal.get(Calendar.DAY_OF_MONTH)
+        year = cal.get(Calendar.YEAR)
+        month = cal.get(Calendar.MONTH)
+        day = cal.get(Calendar.DAY_OF_MONTH)
     }
-
 
     private fun updateDateText() {
         binding.tvDate.text = getSelectedDateString()
     }
 
     private fun getSelectedDateString(): String {
-        val m = (selectedMonth + 1).toString().padStart(2, '0')
-        val d = selectedDay.toString().padStart(2, '0')
-        return "$selectedYear-$m-$d"
+        val m = (month + 1).toString().padStart(2, '0')
+        val d = day.toString().padStart(2, '0')
+        return "$year-$m-$d"
     }
 
     private fun showResult(list: List<Nutrient>, total: Float) {
@@ -80,106 +72,91 @@ class History_Food_Tracker : AppCompatActivity() {
             DatePickerDialog(
                 this,
                 { _, y, m, d ->
-                    selectedYear = y
-                    selectedMonth = m
-                    selectedDay = d
+                    year = y
+                    month = m
+                    day = d
+
                     updateDateText()
                     loadMealsForDate(getSelectedDateString())
                 },
-                selectedYear,
-                selectedMonth,
-                selectedDay
+                year,
+                month,
+                day
             ).show()
         }
     }
 
-    private fun plotMonthlyCalories(year: Int, month: Int) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val entries = ArrayList<BarEntry>()
+    private fun showPieChart(
+        carb: Float,
+        sugar: Float,
+        protein: Float,
+        fat: Float
+    ) {
+        val pieChart = binding.pieChart
 
-        Firebase.firestore
-            .collection("user")
-            .document(uid)
-            .collection("Meals")
-            .get()
-            .addOnSuccessListener { result ->
+        pieChart.setUsePercentValues(true)
+        pieChart.description.isEnabled = false
+        pieChart.setExtraOffsets(5f, 10f, 5f, 5f)
 
-                val dailyMap = mutableMapOf<Int, Float>()
+        pieChart.dragDecelerationFrictionCoef = 0.95f
+        pieChart.setDrawHoleEnabled(true)
+        pieChart.setHoleColor(android.graphics.Color.WHITE)
 
-                for (doc in result) {
-                    val date = doc.id // yyyy-MM-dd
-                    val y = date.substring(0, 4).toInt()
-                    val m = date.substring(5, 7).toInt()
-                    val d = date.substring(8, 10).toInt()
+        pieChart.transparentCircleRadius = 61f
+        pieChart.holeRadius = 58f
+        pieChart.setDrawCenterText(true)
+        pieChart.setRotationEnabled(true)
+        pieChart.animateY(1400, com.github.mikephil.charting.animation.Easing.EaseInOutQuad)
 
-                    if (y == year && m == month + 1) {
-                        dailyMap[d] = 0f
-                    }
-                }
+        pieChart.legend.isEnabled = false
+        pieChart.setEntryLabelColor(android.graphics.Color.WHITE)
+        pieChart.setEntryLabelTextSize(12f)
 
-                if (dailyMap.isEmpty()) {
-                    binding.calorieChart.clear()
-                    return@addOnSuccessListener
-                }
+        val entries = ArrayList<com.github.mikephil.charting.data.PieEntry>()
 
-                var loaded = 0
-                val totalRequests = dailyMap.size * mealTypes.size
+        if (carb > 0) entries.add(com.github.mikephil.charting.data.PieEntry(carb, "Carbs"))
+        if (sugar > 0) entries.add(com.github.mikephil.charting.data.PieEntry(sugar, "Sugar"))
+        if (protein > 0) entries.add(com.github.mikephil.charting.data.PieEntry(protein, "Protein"))
+        if (fat > 0) entries.add(com.github.mikephil.charting.data.PieEntry(fat, "Fat"))
 
-                for ((dayKey, _) in dailyMap) {
-                    val dateStr = String.format("%04d-%02d-%02d", year, month + 1, dayKey)
-
-                    for (meal in mealTypes) {
-                        Firebase.firestore
-                            .collection("user")
-                            .document(uid)
-                            .collection("Meals")
-                            .document(dateStr)
-                            .collection(meal)
-                            .get()
-                            .addOnSuccessListener { snap ->
-                                for (doc in snap) {
-                                    val cal = doc.getString("calories")?.toFloatOrNull() ?: 0f
-                                    dailyMap[dayKey] = dailyMap[dayKey]!! + cal
-                                }
-
-                                loaded++
-                                if (loaded == totalRequests) {
-                                    for ((d, total) in dailyMap) {
-                                        entries.add(BarEntry(d.toFloat(), total))
-                                    }
-                                    drawChart(entries)
-                                }
-                            }
-                    }
-                }
-            }
-    }
-
-    private fun drawChart(entries: List<BarEntry>) {
-        val dataSet = BarDataSet(entries, "Daily Calories")
-        dataSet.color = resources.getColor(R.color.dark_orange, null)
-        dataSet.valueTextSize = 12f
-
-        val barData = BarData(dataSet)
-        barData.barWidth = 0.5f
-
-        binding.calorieChart.apply {
-            description.isEnabled = false
-            axisRight.isEnabled = false
-            axisLeft.axisMinimum = 0f
-            xAxis.granularity = 1f
-            setScaleEnabled(false)
-            setFitBars(true)
-            animateY(800)
-            data = barData
-            invalidate()
+        if (entries.isEmpty()) {
+            pieChart.clear()
+            return
         }
+
+        val dataSet = com.github.mikephil.charting.data.PieDataSet(entries, "")
+
+        dataSet.colors = listOf(
+            getColor(R.color.blue),        // carbs
+            getColor(R.color.purple),     // sugar
+            getColor(R.color.GREEN),      // protein
+            getColor(R.color.dark_orange) // fat
+        )
+
+        dataSet.sliceSpace = 3f
+        dataSet.selectionShift = 5f
+
+        val data = com.github.mikephil.charting.data.PieData(dataSet)
+        data.setValueFormatter(com.github.mikephil.charting.formatter.PercentFormatter(pieChart))
+        data.setValueTextSize(14f)
+        data.setValueTextColor(android.graphics.Color.WHITE)
+
+        pieChart.data = data
+        pieChart.highlightValues(null)
+        pieChart.invalidate()
     }
 
     private fun loadMealsForDate(date: String) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val resultList = mutableListOf<Nutrient>()
+
+        val list = mutableListOf<Nutrient>()
         var totalCalories = 0f
+
+        var carb = 0f
+        var sugar = 0f
+        var protein = 0f
+        var fat = 0f
+
         var loaded = 0
 
         for (meal in mealTypes) {
@@ -194,16 +171,40 @@ class History_Food_Tracker : AppCompatActivity() {
                     for (doc in snapshot) {
                         val item = doc.toObject(Nutrient::class.java)
                         item.mealType = meal
-                        resultList.add(item)
+                        list.add(item)
 
                         totalCalories += item.calories?.toFloatOrNull() ?: 0f
+                        carb += item.carbs?.toFloatOrNull() ?: 0f
+                        sugar += item.sugar?.toFloatOrNull() ?: 0f
+                        protein += item.protein?.toFloatOrNull() ?: 0f
+                        fat += item.fat?.toFloatOrNull() ?: 0f
                     }
 
                     loaded++
                     if (loaded == mealTypes.size) {
-                        showResult(resultList, totalCalories)
+
+                        val totalMacro = carb + sugar + protein + fat
+
+                        if (totalMacro > 0f) {
+                            val carbPct = carb / totalMacro * 100f
+                            val sugarPct = sugar / totalMacro * 100f
+                            val proteinPct = protein / totalMacro * 100f
+                            val fatPct = fat / totalMacro * 100f
+
+                            showPieChart(
+                                carbPct,
+                                sugarPct,
+                                proteinPct,
+                                fatPct
+                            )
+                        } else {
+                            binding.pieChart.clear()
+                        }
+
+                        showResult(list, totalCalories)
                     }
                 }
         }
     }
+
 }
