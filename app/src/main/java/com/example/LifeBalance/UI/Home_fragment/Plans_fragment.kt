@@ -57,8 +57,6 @@ class Plans_fragment : Fragment() {
             c2.setOnClickListener{
                startActivity(Intent(requireActivity(), MealReminder::class.java))
             }
-            c3.setOnClickListener{
-            }
         }
     }
     
